@@ -1,7 +1,6 @@
 from flask import Flask, request
 import subprocess
 import json
-import re
 import os
 
 app = Flask(__name__)
@@ -16,9 +15,12 @@ def api():
     # change the directory to the llama directory
     os.chdir('llama.cpp')
     # run the command
-    answer = subprocess.check_output(['./main', '--threads', '8', '--n-gpu-layers', '8', '--model', 'llama-2-13b-chat.ggmlv3.q4_0.bin', '--color', '--ctx-size', '2048', '--temp', '0.7', '--repeat_penalty', '1.1', '--n-predict', '-1', '--prompt', '[INST] ' + question + ' [/INST]'], universal_newlines=True)
-    # return the answer in json
-    answer_cleaned = re.sub(r'\[INST\].*?\[/INST\]\s*', '', answer)
+    answer = subprocess.check_output(['./main', '--threads', '12', '--n-gpu-layers', '8', '--model', 'llama-2-13b-chat.ggmlv3.q4_0.bin', '--color', '--ctx-size', '2048', '--temp', '0.5', '--repeat_penalty', '1.1', '--n-predict', '-1', '--prompt', '[INST] ' + question + ' [/INST]'], universal_newlines=True)
+    # return control back to root directory
+    os.chdir('../')
+    # split the answer by [/INST] tag and get the second part
+    answer_cleaned = answer.split('[/INST]')[-1]
+    # return the answer in json format
     result = json.dumps({'answer': answer_cleaned})
     return result
 
